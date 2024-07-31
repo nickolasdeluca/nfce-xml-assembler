@@ -652,6 +652,11 @@ object FMain: TFMain
       end
     end
   end
+  object ApplicationEvents: TApplicationEvents
+    OnMessage = ApplicationEventsMessage
+    Left = 640
+    Top = 296
+  end
   object ACBrNFe: TACBrNFe
     Configuracoes.Geral.SSLLib = libNone
     Configuracoes.Geral.SSLCryptLib = cryNone
@@ -665,10 +670,5 @@ object FMain: TFMain
     Configuracoes.RespTec.IdCSRT = 0
     Left = 640
     Top = 240
-  end
-  object ApplicationEvents: TApplicationEvents
-    OnMessage = ApplicationEventsMessage
-    Left = 640
-    Top = 296
   end
 end

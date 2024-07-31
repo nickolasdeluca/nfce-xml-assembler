@@ -10,7 +10,6 @@ uses
 
 type
   TFMain = class(TForm)
-    ACBrNFe: TACBrNFe;
     pgControlFuncoes: TPageControl;
     tabPrincipal: TTabSheet;
     tabConfiguracoes: TTabSheet;
@@ -65,6 +64,7 @@ type
     lbDadosXML: TLabel;
     sbDadosXML: TScrollBox;
     sptInfos: TSplitter;
+    ACBrNFe: TACBrNFe;
     procedure FormCreate(Sender: TObject);
     procedure btSalvarConfiguracoesClick(Sender: TObject);
     procedure sbCaminhoCertClick(Sender: TObject);
@@ -360,7 +360,6 @@ var
   ANomeArquivo: String;
   AInfProt: TProtDFeCollection;
   AInfProtItem: TProtDFeCollectionItem;
-  AProcNFe: TProcNFe;
 
   function _GetCoalesce(AString: String): String;
   begin
@@ -468,53 +467,53 @@ begin
         (AInfProt.Items[0].cStat = 150) or (AInfProt.Items[0].cStat = 301) or
         (AInfProt.Items[0].cStat = 302) or (AInfProt.Items[0].cStat = 303) then
       begin
-        AProcNFe := TProcNFe.Create;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.tpAmb :=
+          AInfProt.Items[0].tpAmb;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.verAplic :=
+          AInfProt.Items[0].verAplic;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.chNFe :=
+          AInfProt.Items[0].chDFe;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.dhRecbto :=
+          AInfProt.Items[0].dhRecbto;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.nProt :=
+          AInfProt.Items[0].nProt;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.digVal :=
+          AInfProt.Items[0].digVal;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.xMotivo :=
+          AInfProt.Items[0].xMotivo;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.cStat :=
+          AInfProt.Items[0].cStat;
 
-        AProcNFe.tpAmb := AInfProt.Items[0].tpAmb;
-        AProcNFe.verAplic := AInfProt.Items[0].verAplic;
-        AProcNFe.chNFe := AInfProt.Items[0].chDFe;
-        AProcNFe.dhRecbto := AInfProt.Items[0].dhRecbto;
-        AProcNFe.nProt := AInfProt.Items[0].nProt;
-        AProcNFe.digVal := AInfProt.Items[0].digVal;
-        AProcNFe.xMotivo := AInfProt.Items[0].xMotivo;
-        AProcNFe.cStat := AInfProt.Items[0].cStat;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.XML_NFe :=
+          RemoverDeclaracaoXML(ACBrNFe.NotasFiscais.Items[0].XMLAssinado);
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.XML_prot :=
+          AInfProt.Items[0].XMLprotDFe;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.Versao := AInfProtVersao;
+        ACBrNFe.NotasFiscais.Items[0].NFe.procNFe.GerarXML;
+
+        ACBrNFe.NotasFiscais.Items[0].XMLOriginal := ACBrNFe.NotasFiscais.Items
+          [0].NFe.procNFe.Gerador.ArquivoFormatoXML;
+
+        ANomeArquivo := AInfProt.Items[0].chDFe + '-nfe.xml';
 
         try
-          AProcNFe.XML_NFe := RemoverDeclaracaoXML
-            (ACBrNFe.NotasFiscais.Items[0].XMLAssinado);
-          AProcNFe.XML_prot := AInfProt.Items[0].XMLprotDFe;
-          AProcNFe.Versao := AInfProtVersao;
-          AProcNFe.GerarXML;
-
-          ACBrNFe.NotasFiscais.Items[0].NFe.procNFe := AProcNFe;
-
-          ACBrNFe.NotasFiscais.Items[0].XMLOriginal :=
-            AProcNFe.Gerador.ArquivoFormatoXML;
-
-          ANomeArquivo := AInfProt.Items[0].chDFe + '-nfe.xml';
-
-          try
-            ACBrNFe.NotasFiscais.Items[0].Assinar;
-            ACBrNFe.NotasFiscais.Items[0].Validar;
-          except
-            on E: Exception do
-            begin
-              mmRespostaApp.Lines.Add(E.message);
-            end;
+          ACBrNFe.NotasFiscais.Items[0].Assinar;
+          ACBrNFe.NotasFiscais.Items[0].Validar;
+        except
+          on E: Exception do
+          begin
+            mmRespostaApp.Lines.Add(E.message);
           end;
-
-          if not ACBrNFe.NotasFiscais.Items[0].ErroValidacao.IsEmpty then
-            mmRespostaApp.Lines.Add(ACBrNFe.NotasFiscais.Items[0]
-              .ErroValidacao);
-
-          ACBrNFe.Gravar(ANomeArquivo, ACBrNFe.NotasFiscais.Items[0]
-            .XMLOriginal);
-
-          mmRespostaApp.Lines.Add('XML salvo em: /Docs/' + AInfProt.Items[0]
-            .chDFe + '-nfe.xml');
-        finally
-          AProcNFe.Free;
         end;
+
+        if not ACBrNFe.NotasFiscais.Items[0].ErroValidacao.IsEmpty then
+          mmRespostaApp.Lines.Add(ACBrNFe.NotasFiscais.Items[0].ErroValidacao);
+
+        ACBrNFe.Gravar(ANomeArquivo, ACBrNFe.NotasFiscais.Items[0].XMLOriginal);
+
+        mmRespostaApp.Lines.Add('XML salvo em: /Docs/' + AInfProt.Items[0].chDFe
+          + '-nfe.xml');
+
       end;
     finally
       AInfProt.Free;
