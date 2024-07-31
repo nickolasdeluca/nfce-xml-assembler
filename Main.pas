@@ -357,6 +357,7 @@ var
   I: integer;
   AChave: String;
   AInfProtVersao: String;
+  ANomeArquivo: String;
   AInfProt: TProtDFeCollection;
   AInfProtItem: TProtDFeCollectionItem;
   AProcNFe: TProcNFe;
@@ -469,6 +470,15 @@ begin
       begin
         AProcNFe := TProcNFe.Create;
 
+        AProcNFe.tpAmb := AInfProt.Items[0].tpAmb;
+        AProcNFe.verAplic := AInfProt.Items[0].verAplic;
+        AProcNFe.chNFe := AInfProt.Items[0].chDFe;
+        AProcNFe.dhRecbto := AInfProt.Items[0].dhRecbto;
+        AProcNFe.nProt := AInfProt.Items[0].nProt;
+        AProcNFe.digVal := AInfProt.Items[0].digVal;
+        AProcNFe.xMotivo := AInfProt.Items[0].xMotivo;
+        AProcNFe.cStat := AInfProt.Items[0].cStat;
+
         try
           AProcNFe.XML_NFe := RemoverDeclaracaoXML
             (ACBrNFe.NotasFiscais.Items[0].XMLAssinado);
@@ -476,11 +486,15 @@ begin
           AProcNFe.Versao := AInfProtVersao;
           AProcNFe.GerarXML;
 
+          ACBrNFe.NotasFiscais.Items[0].NFe.procNFe := AProcNFe;
+
           ACBrNFe.NotasFiscais.Items[0].XMLOriginal :=
             AProcNFe.Gerador.ArquivoFormatoXML;
 
+          ANomeArquivo := AInfProt.Items[0].chDFe + '-nfe.xml';
+
           try
-//            ACBrNFe.NotasFiscais.Items[0].Assinar;
+            ACBrNFe.NotasFiscais.Items[0].Assinar;
             ACBrNFe.NotasFiscais.Items[0].Validar;
           except
             on E: Exception do
@@ -493,8 +507,8 @@ begin
             mmRespostaApp.Lines.Add(ACBrNFe.NotasFiscais.Items[0]
               .ErroValidacao);
 
-          ACBrNFe.Gravar(AInfProt.Items[0].chDFe + '-nfe.xml',
-            ACBrNFe.NotasFiscais.Items[0].XMLOriginal);
+          ACBrNFe.Gravar(ANomeArquivo, ACBrNFe.NotasFiscais.Items[0]
+            .XMLOriginal);
 
           mmRespostaApp.Lines.Add('XML salvo em: /Docs/' + AInfProt.Items[0]
             .chDFe + '-nfe.xml');
